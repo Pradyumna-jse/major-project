@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}{{c.name}}{% endblock %}{% block body %}
+<a href="/cases">← All cases</a>
+<div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 18px"><div><h1>{{c.name}} <span class="pill {{c.status}}">{{c.status}}</span></h1><p class="sub" style="margin:0">{{c.case_code}} · registered {{c.created_at}}</p></div>
+ <div style="display:flex;gap:8px"><a class="btn ghost" href="/map?case={{c.id}}">🗺️ Map</a>
+ <form method="post" action="/cases/{{c.id}}/status">{% if c.status=='active' %}<input type="hidden" name="status" value="found"><button class="btn">Mark as found</button>{% else %}<input type="hidden" name="status" value="active"><button class="btn ghost">Re-activate</button>{% endif %}</form>
+ <form method="post" action="/cases/{{c.id}}/delete" onsubmit="return confirm('Delete this case and its face data?')"><button class="btn red">Delete</button></form></div></div>
+<div class="grid g2"><div class="card"><h2>Details</h2><table>
+ <tr><td>Age / gender</td><td>{{c.age or '—'}} · {{c.gender or '—'}}</td></tr><tr><td>Last seen</td><td>{{c.last_seen_place or '—'}} {{c.last_seen_date or ''}}</td></tr>
+ <tr><td>Description</td><td>{{c.description or '—'}}</td></tr><tr><td>Contact</td><td>{{c.contact_name or '—'}} · {{c.contact_email or '—'}} · {{c.contact_phone or ''}}</td></tr></table>
+ <h2 style="margin-top:18px">Registered photos</h2><div class="thumbs">{% for p in photos %}<img src="/uploads/{{p.photo_path}}" title="quality {{p.quality}}">{% endfor %}</div>
+ <div class="hint">Only the encrypted 512-number signature is used for matching.</div></div>
+<div class="card"><h2>Sightings</h2>{% if sightings %}<table>{% for s in sightings %}<tr><td width="56"><img class="avatar" src="/snapshots/{{s.snapshot_path}}"></td><td><b>{{(s.score*100)|int}}%</b><div class="hint">{{s.camera_name}} · {{s.seen_at}}</div></td><td><span class="pill {{s.status}}">{{s.status}}</span></td></tr>{% endfor %}</table>
+{% else %}<div class="empty">No sightings yet</div>{% endif %}</div></div>{% endblock %}

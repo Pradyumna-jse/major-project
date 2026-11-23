@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}MPIS{% endblock %} · Missing Person Identification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head><body>
+<div class="shell"><aside class="side">
+ <div class="brand"><div class="logo">🔎</div><div><b>MPIS</b><small>Missing Person Identification</small></div></div>
+ <nav class="nav">
+  {% set items=[('dashboard','/','🏠','Dashboard'),('register','/register','➕','Register a case'),('search','/search','🔍','Search & scan'),('review','/review','✅','Review matches'),('cases','/cases','📁','All cases'),('sightings','/sightings','📍','Sightings & alerts'),('map','/map','🗺️','Map'),('settings','/settings','⚙️','Settings'),('about','/about','💡','How it works')] %}
+  {% for k,u,i,l in items %}<a href="{{u}}" class="{{'on' if page==k}}"><span class="ic">{{i}}</span>{{l}}{% if k=='review' and pending_count %}<span class="badge">{{pending_count}}</span>{% endif %}</a>{% endfor %}
+ </nav><div class="foot">Dept. of CSE · Dayananda Sagar University<br>Major Project 2026-27</div></aside>
+<main class="main">{% block body %}{% endblock %}</main></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>{% block scripts %}{% endblock %}</body></html>

@@ -1,0 +1,50 @@
+{% extends "base.html" %}{% block title %}Search{% endblock %}{% block body %}
+<h1>Search for a missing person</h1><p class="sub">Compare a new photo, a video, or a live camera with {{gallery}} stored face signature(s). Matches below <b>{{thr}}</b> are rejected automatically.</p>
+<div id="root">
+<div class="tabs"><button class="on" data-tab="photo">📷 Photo</button><button data-tab="video">🎞️ Video / CCTV file</button><button data-tab="live">🎥 Live camera</button></div>
+<div class="card" style="margin-bottom:18px"><h2>Where was this taken?</h2><div class="row">
+ <div class="field"><label>Camera / place name</label><input id="camera" placeholder="e.g. MG Road Metro Gate 2"></div>
+ <div class="field"><label>Latitude</label><input id="lat" value="{{d_lat}}"></div><div class="field"><label>Longitude</label><input id="lng" value="{{d_lng}}"></div>
+ <div class="field" style="flex:.6"><label>&nbsp;</label><button type="button" class="btn ghost" id="loc" style="width:100%;justify-content:center">📍 Use my location</button></div></div></div>
+<div class="grid" style="grid-template-columns:1fr 1fr">
+ <div class="card">
+  <div data-pane="photo"><div class="drop" id="dz1"><div class="big">🖼️</div><b>Drop a photo</b><small>Group photos are fine – every face is checked</small></div><input type="file" id="f1" accept="image/*" hidden></div>
+  <div data-pane="video" hidden><div class="drop" id="dz2"><div class="big">🎬</div><b>Drop a video</b><small>Faces are tracked across frames for fewer duplicate alerts</small></div><input type="file" id="f2" accept="video/*" hidden>
+   <div class="bar" style="margin-top:14px" id="pbar" hidden><i></i></div></div>
+  <div data-pane="live" hidden><div class="cam"><video id="vid" autoplay muted playsinline></video><canvas id="ov"></canvas><span class="live" id="livetag" hidden>● LIVE</span></div>
+   <div style="display:flex;gap:10px;margin-top:12px"><button class="btn" id="start">▶ Start camera</button><button class="btn ghost" id="stop" hidden>■ Stop</button></div>
+   <div class="hint">One frame is checked about every 1.5 seconds. Detected matches go to <a href="/review">Review</a>.</div></div>
+  <img id="pv" class="preview" hidden>
+ </div>
+ <div class="card"><h2>Results</h2><div id="out"><div class="empty"><div class="big">🔎</div>Results appear here</div></div></div>
+</div></div>{% endblock %}
+{% block scripts %}<script>
+tabs($('#root'));geo($('#loc'),$('#lat'),$('#lng'));
+const L=()=>{const f=new FormData();f.append('camera',$('#camera').value);f.append('lat',$('#lat').value);f.append('lng',$('#lng').value);return f};
+const out=$('#out');
+function card(m){const c=m.case||{};return `<div class="match ${m.accepted?'':'rej'}">${ring(m.score,m.level)}<div style="flex:1"><b>${c.name||'Case '+m.case_id}</b><div class="hint">${c.case_code||''} ${c.age?'· '+c.age+' yrs':''}</div></div>${pill(m.level)}</div>`}
+function showFaces(r){let h=`<div class="hint">${r.faces} face(s) · ${r.ms} ms · detector: ${r.detector}</div>`;
+ r.results.forEach((x,i)=>{h+=`<h3 style="margin-top:14px">Face ${i+1} <span class="hint">(quality ${Math.round(x.quality*100)}%)</span></h3>`;
+  h+=x.top_k.length?x.top_k.map(card).join(''):'<div class="hint">No cases registered yet.</div>';
+  if(x.sighting)h+=`<div class="hint" style="color:var(--green)">✔ Sent to the review queue</div>`;});
+ if(!r.faces)h+='<div class="empty"><div class="big">🫥</div>No face detected in this image.</div>';
+ if(r.results.some(x=>x.sighting))h+='<a class="btn" href="/review" style="margin-top:12px">Go to review →</a>';out.innerHTML=h;
+ if(r.preview){$('#pv').src='/snapshots/'+r.preview;$('#pv').hidden=false}}
+dropzone($('#dz1'),$('#f1'),async fs=>{out.innerHTML='<div class="empty"><span class="spinner"></span><br>Detecting and matching…</div>';
+ const fd=L();fd.append('file',fs[0]);try{showFaces(await post('/api/search/image',fd));toast('Search finished')}catch(j){out.innerHTML='';toast(j.error||'Failed','bad')}});
+dropzone($('#dz2'),$('#f2'),async fs=>{const fd=L();fd.append('file',fs[0]);$('#pbar').hidden=false;out.innerHTML='<div class="empty"><span class="spinner"></span><br>Scanning video…</div>';
+ try{const {job}=await post('/api/search/video',fd);const t=setInterval(async()=>{const j=await (await fetch('/api/job/'+job)).json();$('#pbar i').style.width=(j.progress*100)+'%';
+  if(j.error){clearInterval(t);out.innerHTML='';toast(j.error,'bad')}
+  if(j.result){clearInterval(t);const r=j.result;let h=`<div class="hint">${r.frames_processed} frames · ${r.tracks.length} face track(s) · ${r.ms} ms</div>`;
+   r.tracks.forEach(t=>{h+=`<h3 style="margin-top:14px">Person track ${t.track} <span class="hint">(${t.frames} frames)</span></h3>`+(t.top_k.map(card).join('')||'')+(t.sighting?'<div class="hint" style="color:var(--green)">✔ Sent to review</div>':'')});
+   if(!r.tracks.length)h+='<div class="empty">No faces found</div>';out.innerHTML=h;toast('Video scanned')}},900)}catch(j){toast(j.error||'Failed','bad')}});
+// ---- live camera
+let stream,timer,busy=false;const vid=$('#vid'),ov=$('#ov'),ctx=ov.getContext('2d');
+$('#start').onclick=async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480}});vid.srcObject=stream;$('#start').hidden=true;$('#stop').hidden=false;$('#livetag').hidden=false;timer=setInterval(tick,1500)}catch(e){toast('Camera blocked – allow access in the browser','bad')}};
+$('#stop').onclick=()=>{clearInterval(timer);stream&&stream.getTracks().forEach(t=>t.stop());$('#start').hidden=false;$('#stop').hidden=true;$('#livetag').hidden=true;ctx.clearRect(0,0,ov.width,ov.height)};
+async function tick(){if(busy||!vid.videoWidth)return;busy=true;const c=document.createElement('canvas');c.width=vid.videoWidth;c.height=vid.videoHeight;c.getContext('2d').drawImage(vid,0,0);
+ c.toBlob(async b=>{const fd=L();fd.append('frame',b,'f.jpg');try{const r=await post('/api/search/frame',fd);ov.width=r.w;ov.height=r.h;ctx.clearRect(0,0,r.w,r.h);ctx.lineWidth=4;ctx.font='bold 22px Inter';
+  let h='';r.faces.forEach(f=>{const [x1,y1,x2,y2]=f.box,ok=f.match&&f.match.accepted;ctx.strokeStyle=ok?'#22c55e':'#94a3b8';ctx.strokeRect(x1,y1,x2-x1,y2-y1);
+   if(f.match){ctx.fillStyle=ok?'#22c55e':'#94a3b8';ctx.fillText((ok?(f.match.case?f.match.case.name+' ':'')  :'')+Math.round(f.match.score*100)+'%',x1,Math.max(24,y1-8));h+=card(f.match)}});
+  out.innerHTML=h||'<div class="empty">Watching… no face in view</div>';if(r.new_sightings.length)toast('Possible match sent to review','ok')}catch(e){}busy=false},'image/jpeg',.85)}
+</script>{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% block title %}Register{% endblock %}{% block body %}
+<h1>Register a missing person</h1><p class="sub">Add details and one or more clear photos. The face is converted into a protected 512-number signature.</p>
+<form id="f" class="grid" style="grid-template-columns:1.2fr 1fr">
+ <div class="card"><h2>1 · Person details</h2>
+  <div class="field"><label>Full name *</label><input name="name" required placeholder="e.g. Ravi Kumar"></div>
+  <div class="row"><div class="field"><label>Age</label><input name="age" type="number" min="0" max="120"></div>
+   <div class="field"><label>Gender</label><select name="gender"><option>Male</option><option>Female</option><option>Other</option></select></div></div>
+  <div class="row"><div class="field"><label>Last seen place</label><input name="last_seen_place" placeholder="Area / landmark"></div>
+   <div class="field"><label>Last seen date</label><input name="last_seen_date" type="date"></div></div>
+  <div class="field"><label>Description</label><textarea name="description" rows="2" placeholder="Clothes, height, marks…"></textarea></div>
+  <h2 style="margin-top:8px">3 · Who should be alerted?</h2>
+  <div class="row"><div class="field"><label>Contact name</label><input name="contact_name"></div><div class="field"><label>Contact email</label><input name="contact_email" type="email" placeholder="family@example.com"></div></div>
+  <div class="field"><label>Contact phone</label><input name="contact_phone"></div>
+ </div>
+ <div class="card"><h2>2 · Photos</h2>
+  <div class="drop" id="dz"><div class="big">📷</div><b>Drop photos here or click to choose</b><small>Front-facing, well-lit, no sunglasses. 2–3 photos work best.</small></div>
+  <input type="file" id="ph" name="photos" accept="image/*" multiple hidden><div class="thumbs" id="th"></div>
+  <div id="rep" style="margin-top:12px"></div>
+  <button class="btn" id="go" style="margin-top:16px;width:100%;justify-content:center">Register case</button>
+ </div></form>{% endblock %}
+{% block scripts %}<script>
+const ph=$('#ph'),th=$('#th');let files=[];
+dropzone($('#dz'),ph,fs=>{files=fs;th.innerHTML='';fs.forEach(f=>{const i=new Image();i.src=URL.createObjectURL(f);th.appendChild(i)})});
+$('#f').onsubmit=async e=>{e.preventDefault();const fd=new FormData($('#f'));fd.delete('photos');files.forEach(f=>fd.append('photos',f));
+ const b=$('#go');b.disabled=true;b.innerHTML='<span class="spinner"></span> Reading faces…';
+ try{const j=await post('/register',fd);toast('Case registered','ok');setTimeout(()=>location=j.redirect,700)}
+ catch(j){toast(j.error||'Failed','bad');$('#rep').innerHTML=(j.report||[]).map(r=>`<div class="hint">Photo ${r.photo}: ${r.msg}</div>`).join('');b.disabled=false;b.textContent='Register case'}};
+</script>{% endblock %}

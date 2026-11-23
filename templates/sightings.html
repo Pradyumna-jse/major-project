@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Sightings{% endblock %}{% block body %}
+<h1>Sightings & alerts</h1><p class="sub">Every sighting with its time, place, score and decision, plus the alerts that were sent.</p>
+<div class="card" style="margin-bottom:18px"><h2>Sighting log</h2>{% if rows %}<table><tr><th></th><th>Person</th><th>Score</th><th>Where</th><th>When</th><th>Source</th><th>Decision</th></tr>
+{% for r in rows %}<tr><td width="56"><img class="avatar" src="/snapshots/{{r.snapshot_path}}"></td><td><b>{{r.name}}</b><div class="hint">{{r.case_code}}</div></td><td>{{(r.score*100)|int}}%</td><td>{{r.camera_name}}<div class="hint">{{'%.4f'|format(r.lat) if r.lat else ''}}, {{'%.4f'|format(r.lng) if r.lng else ''}}</div></td><td>{{r.seen_at}}</td><td>{{r.source_type}}</td><td><span class="pill {{r.status}}">{{r.status}}</span></td></tr>{% endfor %}</table>
+{% else %}<div class="empty"><div class="big">📍</div>No sightings yet</div>{% endif %}</div>
+<div class="card"><h2>Alerts</h2>{% if outbox %}<table><tr><th>To</th><th>Subject</th><th>Mode</th><th>Status</th><th>Time</th></tr>{% for a in outbox %}<tr><td>{{a.to_email}}</td><td>{{a.subject}}</td><td>{{a.mode}}</td><td>{{a.status}}</td><td>{{a.created_at}}</td></tr>{% endfor %}</table>
+<div class="hint">Mode “outbox” means no SMTP account is set, so the e-mail was saved in <code>data/outbox/</code> (demo mode). Add SMTP details in Settings to send real e-mails.</div>{% else %}<div class="empty">No alerts yet</div>{% endif %}</div>{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Settings{% endblock %}{% block body %}
+<h1>Settings</h1><p class="sub">Detector in use: <b>{{detector}}</b></p>{% if saved %}<div class="card" style="background:var(--green-l);margin-bottom:16px">✔ Saved</div>{% endif %}
+<form method="post" class="grid g2"><div class="card"><h2>Matching</h2>
+ <div class="field"><label>Match threshold (cosine similarity)</label><input name="threshold" type="range" min="0.2" max="0.8" step="0.01" value="{{v.threshold}}" oninput="tv.textContent=this.value"><div class="hint">Current: <b id="tv">{{v.threshold}}</b>. Higher = fewer false alerts but more missed people. Use <code>scripts/evaluate.py</code> to choose it at a target false-accept rate.</div></div>
+ <div class="field"><label>Candidates shown per face (Top-K)</label><input name="top_k" type="number" min="1" max="10" value="{{v.top_k}}"></div></div>
+<div class="card"><h2>E-mail alerts</h2><div class="row"><div class="field"><label>SMTP host</label><input name="smtp_host" value="{{v.smtp_host}}" placeholder="smtp.gmail.com"></div><div class="field"><label>Port</label><input name="smtp_port" value="{{v.smtp_port}}"></div></div>
+ <div class="field"><label>SMTP user</label><input name="smtp_user" value="{{v.smtp_user}}"></div><div class="field"><label>SMTP app password</label><input name="smtp_pass" type="password" placeholder="leave blank to keep"></div>
+ <div class="field"><label>Authority e-mail (always alerted)</label><input name="authority_email" value="{{v.authority_email}}"></div></div>
+<div><button class="btn">Save settings</button></div></form>{% endblock %}

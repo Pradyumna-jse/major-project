@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block title %}Review{% endblock %}{% block body %}
+<h1>Review matches</h1><p class="sub">The system only suggests. <b>You decide.</b> Confirm to log the sighting and alert the family and authorities.
+ Tip: press <span class="kbd">A</span> to confirm, <span class="kbd">R</span> to reject, or swipe the card right / left.</p>
+<div id="list">{% for r in rows %}
+<div class="card rv" data-id="{{r.id}}" style="margin-bottom:16px">
+ <div><img class="big" src="/uploads/{{r.ref_photo}}"><div class="cap">Registered: <b>{{r.name}}</b> · {{r.case_code}}</div></div>
+ <div><img class="big" src="/snapshots/{{r.snapshot_path}}"><div class="cap">Seen: {{r.camera_name or r.source_name}} · {{r.seen_at}}{% if r.n_frames>1 %} · {{r.n_frames}} frames{% endif %}</div></div>
+ <div style="text-align:center;min-width:130px"><div class="ring" style="--p:{{(r.score*100)|int}};--c:{{'#16a34a' if r.score>=0.55 else '#f59e0b'}};margin:0 auto 10px;width:78px;height:78px"><i style="width:62px;height:62px">{{(r.score*100)|int}}%</i></div>
+  <button class="btn sm" onclick="act({{r.id}},'confirm')" style="width:100%;justify-content:center">✔ Confirm</button>
+  <button class="btn sm red" onclick="act({{r.id}},'reject')" style="width:100%;justify-content:center;margin-top:8px">✖ Reject</button></div>
+</div>{% else %}<div class="card empty"><div class="big">🎉</div><b>All caught up</b><div class="hint">No matches are waiting.</div></div>{% endfor %}</div>{% endblock %}
+{% block scripts %}<script>
+async function act(id,a){const el=$(`.rv[data-id="${id}"]`);try{const r=await (await fetch(`/api/sightings/${id}/${a}`,{method:'POST'})).json();
+ el.classList.add(a==='confirm'?'go-ok':'go-no');setTimeout(()=>el.remove(),260);
+ toast(a==='confirm'?`Confirmed · ${r.alerts.length} alert(s) ${r.alerts[0]?r.alerts[0].status:''}`:'Rejected', 'ok');
+ const b=$('.badge');if(b){const n=+b.textContent-1;n>0?b.textContent=n:b.remove()}}catch(e){toast('Failed','bad')}}
+document.addEventListener('keydown',e=>{const f=$('.rv');if(!f||e.target.tagName==='INPUT')return;if(e.key==='a'||e.key==='A')act(f.dataset.id,'confirm');if(e.key==='r'||e.key==='R')act(f.dataset.id,'reject')});
+$$('.rv').forEach(el=>{let x0=null;el.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;x0=e.clientX});
+ el.addEventListener('pointermove',e=>{if(x0===null)return;const dx=e.clientX-x0;el.style.transform=`translateX(${dx}px) rotate(${dx/40}deg)`});
+ const end=e=>{if(x0===null)return;const dx=e.clientX-x0;x0=null;el.style.transform='';if(dx>140)act(el.dataset.id,'confirm');else if(dx<-140)act(el.dataset.id,'reject')};
+ el.addEventListener('pointerup',end);el.addEventListener('pointerleave',end)});
+</script>{% endblock %}

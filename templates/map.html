@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Map{% endblock %}{% block body %}
+<div style="display:flex;justify-content:space-between;align-items:end"><div><h1>Sighting map</h1><p class="sub">🟢 confirmed · 🟠 waiting for review. The dashed line follows confirmed sightings in time order.</p></div>
+<div style="display:flex;gap:8px;align-items:center"><select id="sel" style="width:240px"><option value="">All cases</option>{% for c in cases %}<option value="{{c.id}}">{{c.name}} ({{c.case_code}})</option>{% endfor %}</select></div></div>
+<iframe class="map" id="m" src="/map/embed"></iframe>{% endblock %}
+{% block scripts %}<script>const sel=$('#sel'),q=new URLSearchParams(location.search).get('case');if(q){sel.value=q;$('#m').src='/map/embed?case='+q}
+sel.onchange=()=>$('#m').src='/map/embed'+(sel.value?'?case='+sel.value:'')</script>{% endblock %}

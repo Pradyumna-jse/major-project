@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Cases{% endblock %}{% block body %}
+<div style="display:flex;justify-content:space-between;align-items:end"><div><h1>All cases</h1><p class="sub">{{cases|length}} registered</p></div><a class="btn" href="/register">➕ New case</a></div>
+<div class="card">{% if cases %}<table><tr><th></th><th>Case</th><th>Person</th><th>Last seen</th><th>Photos</th><th>Confirmed</th><th>Status</th></tr>
+{% for c in cases %}<tr onclick="location='/cases/{{c.id}}'" style="cursor:pointer"><td width="56"><img class="avatar" src="/uploads/{{c.photo}}"></td><td>{{c.case_code}}</td><td><b>{{c.name}}</b><div class="hint">{{c.age or ''}} {{c.gender or ''}}</div></td>
+<td>{{c.last_seen_place or '—'}}<div class="hint">{{c.last_seen_date or ''}}</div></td><td>{{c.n_photos}}</td><td>{{c.n_conf}}</td><td><span class="pill {{c.status}}">{{c.status}}</span></td></tr>{% endfor %}</table>
+{% else %}<div class="empty"><div class="big">📂</div>No cases yet.<br><br><a class="btn" href="/register">Register the first case</a></div>{% endif %}</div>{% endblock %}

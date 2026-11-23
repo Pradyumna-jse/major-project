@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% block title %}Dashboard{% endblock %}{% block body %}
+<h1>Welcome back 👋</h1><p class="sub">A quick view of every case, match waiting for review, and alert sent.</p>
+<div class="grid g4">
+ <div class="card stat"><div class="ico" style="background:var(--teal-l)">📁</div><div><b>{{s.cases_active}}</b><span>Active cases</span></div></div>
+ <div class="card stat"><div class="ico" style="background:var(--amber-l)">⏳</div><div><b>{{s.pending}}</b><span>Matches to review</span></div></div>
+ <div class="card stat"><div class="ico" style="background:var(--green-l)">✅</div><div><b>{{s.confirmed}}</b><span>Confirmed sightings</span></div></div>
+ <div class="card stat"><div class="ico" style="background:#e6eefc">✉️</div><div><b>{{s.alerts}}</b><span>Alerts sent</span></div></div>
+</div>
+<div class="grid g2" style="margin-top:18px;grid-template-columns:1.4fr 1fr">
+ <div class="card"><h2>What would you like to do?</h2>
+  <div class="grid g3">
+   <a class="card" href="/register" style="text-align:center"><div style="font-size:34px">➕</div><b>Register</b><div class="hint">Add a missing person</div></a>
+   <a class="card" href="/search" style="text-align:center"><div style="font-size:34px">🔍</div><b>Search</b><div class="hint">Photo, video or live camera</div></a>
+   <a class="card" href="/review" style="text-align:center"><div style="font-size:34px">✅</div><b>Review</b><div class="hint">Confirm or reject matches</div></a>
+  </div>
+  <h2 style="margin-top:22px">Recent sightings</h2>
+  {% if recent %}<table>{% for r in recent %}<tr><td width="56"><img class="avatar" src="/snapshots/{{r.snapshot_path}}"></td>
+   <td><b>{{r.name}}</b><div class="hint">{{r.camera_name}} · {{r.seen_at}}</div></td><td>{{'%d'%(r.score*100)}}%</td><td><span class="pill {{r.status}}">{{r.status}}</span></td></tr>{% endfor %}</table>
+  {% else %}<div class="empty"><div class="big">🕊️</div>No sightings yet. Register a case, then run a search.</div>{% endif %}
+ </div>
+ <div class="card"><h2>Newest cases</h2>
+  {% for c in cases %}<a href="/cases/{{c.id}}" style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);color:inherit"><span><b>{{c.name}}</b><div class="hint">{{c.case_code}}</div></span><span class="pill {{c.status}}">{{c.status}}</span></a>
+  {% else %}<div class="empty">No cases yet</div>{% endfor %}
+  <div class="hint" style="margin-top:14px">Match rule: a face is accepted only if its similarity is ≥ <b>{{thr}}</b>. Every accepted match still needs an officer's confirmation.</div>
+ </div>
+</div>{% endblock %}

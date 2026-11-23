@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}How it works{% endblock %}{% block body %}
+<h1>How it works</h1><p class="sub">Eight stages from registering a case to alerting the family.</p>
+<div class="card"><div class="flow">
+<div><b>1 Register</b><br>Officer adds details and photos.</div><div><b>2 Detect</b><br>YOLOv8 finds faces ({{detector}} active).</div><div><b>3 Embed</b><br>InsightFace turns each face into 512 numbers.</div><div><b>4 Match</b><br>Cosine similarity, Top-K, threshold.</div>
+<div><b>5 Verify</b><br>An officer confirms or rejects.</div><div><b>6 Record</b><br>Time, place, score saved in SQLite.</div><div><b>7 Alert</b><br>E-mail to family and authority.</div><div><b>8 Map</b><br>Sightings shown on a Folium map.</div></div></div>
+<div class="grid g2" style="margin-top:18px"><div class="card"><h2>Built-in safeguards</h2><ul><li>Face signatures are <b>encrypted</b> in the database.</li><li>Matches below the threshold are <b>rejected</b>, so someone is not named just because they are “closest”.</li><li>A human must <b>confirm</b> before any alert.</li><li>Video faces are <b>tracked</b>, so one person gives one candidate, not hundreds.</li><li>Every decision is written to an audit log.</li></ul></div>
+<div class="card"><h2>Good to know</h2><ul><li>Clear, front-facing registration photos give the best results.</li><li>Poor light, masks or very small faces lower the score.</li><li>Never act on a match alone – always verify.</li></ul></div></div>{% endblock %}

@@ -1,0 +1,92 @@
+{
+  "images": 60,
+  "detection_rate": 1.0,
+  "ms_per_image": 1136.2549980481467,
+  "detector": "YOLOv8 face",
+  "seeds": 3,
+  "runs": [
+    {
+      "n_gallery": 9,
+      "n_genuine": 36,
+      "n_absent_probes": 15,
+      "rank1": 1.0,
+      "rank5": 1.0,
+      "thr@FAR0.01": 0.14702637910842895,
+      "TAR@FAR0.01": 1.0,
+      "absent_rejected@FAR0.01": 0.9333333333333333,
+      "thr@FAR0.001": 0.19130255457758863,
+      "TAR@FAR0.001": 1.0,
+      "absent_rejected@FAR0.001": 0.9333333333333333
+    },
+    {
+      "n_gallery": 9,
+      "n_genuine": 36,
+      "n_absent_probes": 15,
+      "rank1": 1.0,
+      "rank5": 1.0,
+      "thr@FAR0.01": 0.14702637910842895,
+      "TAR@FAR0.01": 1.0,
+      "absent_rejected@FAR0.01": 0.8,
+      "thr@FAR0.001": 0.18920611414313265,
+      "TAR@FAR0.001": 1.0,
+      "absent_rejected@FAR0.001": 1.0
+    },
+    {
+      "n_gallery": 9,
+      "n_genuine": 36,
+      "n_absent_probes": 15,
+      "rank1": 1.0,
+      "rank5": 1.0,
+      "thr@FAR0.01": 0.14702637910842895,
+      "TAR@FAR0.01": 1.0,
+      "absent_rejected@FAR0.01": 1.0,
+      "thr@FAR0.001": 0.19130255457758863,
+      "TAR@FAR0.001": 1.0,
+      "absent_rejected@FAR0.001": 1.0
+    }
+  ],
+  "n_gallery": {
+    "mean": 9.0,
+    "std": 0.0
+  },
+  "n_genuine": {
+    "mean": 36.0,
+    "std": 0.0
+  },
+  "n_absent_probes": {
+    "mean": 15.0,
+    "std": 0.0
+  },
+  "rank1": {
+    "mean": 1.0,
+    "std": 0.0
+  },
+  "rank5": {
+    "mean": 1.0,
+    "std": 0.0
+  },
+  "thr@FAR0.01": {
+    "mean": 0.14702637910842895,
+    "std": 0.0
+  },
+  "TAR@FAR0.01": {
+    "mean": 1.0,
+    "std": 0.0
+  },
+  "absent_rejected@FAR0.01": {
+    "mean": 0.9111111111111111,
+    "std": 0.0831479419283098
+  },
+  "thr@FAR0.001": {
+    "mean": 0.19060374109943665,
+    "std": 0.0009882714983716616
+  },
+  "TAR@FAR0.001": {
+    "mean": 1.0,
+    "std": 0.0
+  },
+  "absent_rejected@FAR0.001": {
+    "mean": 0.9777777777777779,
+    "std": 0.03142696805273544
+  }
+}
